@@ -9,7 +9,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-2" 
+  region = "us-east-2" # Reemplaza con tu region
 }
 
 resource "aws_ecs_cluster" "ephemeral_cluster" {
@@ -37,6 +37,8 @@ resource "aws_ecs_task_definition" "ephemeral_task" {
   network_mode             = "awsvpc"
   cpu                      = "256"
   memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn  
+
 }
 
 resource "aws_ecs_service" "ephemeral_service" {
