@@ -17,3 +17,7 @@ variable "private_subnets" {
   description = "Las subredes privadas para el servicio de ECS."
   type        = list(string)
 }
+variable "ecr_url" {
+  description = "URL completa del repositorio ECR sin tag."
+  type        = string
+}

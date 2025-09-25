@@ -15,12 +15,32 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-2"
+          aws-region: ${{ secrets.AWS_REGION }} 
+     #ECR Login     
+      - name: Docker Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      #Build, tag y push
+      - name: Build, Tag and Push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: pr-${{ github.event.pull_request.number }}
+        run: |
+          # 1. Crear el repositorio si no existe
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository --repository-name $ECR_REPOSITORY
 
+          # 2. Build de la imagen
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+          # 3. Tag y Push a ECR
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      #Deploy con Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: "1.3.0"
 
       - name: Terraform Init
         run: terraform init
@@ -28,6 +48,12 @@ jobs:
 
       - name: Terraform Plan & Apply
         run: |
-          terraform plan -out=plan.out -var="pr_number=${{ github.event.pull_request.number }}"
+          terraform plan -out=plan.out \
+            -var="pr_number=${{ github.event.pull_request.number }}" \
+            -var="vpc_id=${{ secrets.VPC_ID }}" \
+            -var="public_subnets=${{ secrets.PUBLIC_SUBNETS }}" \
+            -var="private_subnets=${{ secrets.ACTIONS_PRIVATE_SUBNETS }}" \
+            -var="ecr_url=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}"
+          
           terraform apply -auto-approve plan.out
         working-directory: ./terraform

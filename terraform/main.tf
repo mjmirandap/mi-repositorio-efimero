@@ -50,6 +50,14 @@ resource "aws_ecs_task_definition" "ephemeral_task" {
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn  
 
+  container_definitions    = jsonencode([
+    {
+      "name"      = "mi-app-container",
+      "image"     = "${var.ecr_url}:pr-${var.pr_number}", 
+      "cpu"       = 256,
+    }
+  ])
+
 }
 
 # 4. ECS service
