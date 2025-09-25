@@ -39,8 +39,8 @@ resource "aws_ecs_task_definition" "ephemeral_task" {
       "essential" = true,
       "portMappings" = [
         {
-          "containerPort" = 80, # Puerto del contenedor (Nginx)
-          "hostPort"      = 80  # Puerto al que apunta el Target Group
+          "containerPort" = 80,
+          "hostPort"      = 80
         }
       ]
     }
@@ -51,7 +51,6 @@ resource "aws_ecs_task_definition" "ephemeral_task" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-
 }
 
 # 4. ECS service
