@@ -29,34 +29,28 @@ resource "aws_lb_target_group" "ephemeral_tg" {
 # 3. Task definition
 resource "aws_ecs_task_definition" "ephemeral_task" {
   family                   = "mi-app-pr-${var.pr_number}"
-  container_definitions    = jsonencode([
-    {
-      "name"      = "mi-app-container",
-      "image"     = "286678351406.dkr.ecr.us-east-2.amazonaws.com/borrame-app-repo:verde",
-      "cpu"       = 256,
-      "memory"    = 512,
-      "essential" = true,
-      "portMappings" = [
-        {
-          "containerPort" = 80,
-          "hostPort"      = 80
-        }
-      ]
-    }
-  ])
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn  
-
+  
   container_definitions    = jsonencode([
     {
       "name"      = "mi-app-container",
       "image"     = "${var.ecr_url}:pr-${var.pr_number}", 
       "cpu"       = 256,
+      "memory"    = 512,
+      "essential" = true,
+      "portMappings" = [
+        {
+          "containerPort" = 80, # Puerto del contenedor (Nginx)
+          "hostPort"      = 80  # Puerto al que apunta el Target Group
+        }
+      ]
     }
   ])
+
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
 }
 
