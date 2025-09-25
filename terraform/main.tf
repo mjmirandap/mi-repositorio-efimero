@@ -21,7 +21,7 @@ resource "aws_ecs_cluster" "ephemeral_cluster" {
 resource "aws_security_group" "ephemeral_sg" {
   name        = "ephemeral-sg-pr-${var.pr_number}"
   description = "SG compartido para el ALB y las tareas de Fargate"
-  vpc_id      = var.vpc_id # Requiere el ID de tu VPC
+  vpc_id      = var.vpc_id 
 
   ingress {
     description = "Allow HTTP access"
