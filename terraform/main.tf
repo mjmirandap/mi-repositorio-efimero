@@ -17,6 +17,28 @@ resource "aws_ecs_cluster" "ephemeral_cluster" {
   name = "ephemeral-cluster-pr-${var.pr_number}"
 }
 
+# Definición del SG
+resource "aws_security_group" "ephemeral_sg" {
+  name        = "ephemeral-sg-pr-${var.pr_number}"
+  description = "SG compartido para el ALB y las tareas de Fargate"
+  vpc_id      = var.vpc_id # Requiere el ID de tu VPC
+
+  ingress {
+    description = "Allow HTTP access"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # 2. TG para el ALB
 resource "aws_lb_target_group" "ephemeral_tg" {
   name        = "ephemeral-tg-pr-${var.pr_number}"
