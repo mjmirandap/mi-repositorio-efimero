@@ -3,6 +3,16 @@ variable "pr_number" {
   type        = number
 }
 
+variable "vpc_id" {
+  description = "ID de la VPC principal."
+  type        = string
+}
+
+variable "public_subnets" {
+  description = "Subredes publicas para el ALB."
+  type        = list(string)
+}
+
 variable "private_subnets" {
   description = "Las subredes privadas para el servicio de ECS."
   type        = list(string)

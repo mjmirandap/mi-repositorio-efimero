@@ -1,0 +1,18 @@
+# Archivo .gitignore para proyectos de Terraform
+
+# Archivos de estado y backups: CRUCIALES para ignorar por seguridad
+*.tfstate
+*.tfstate.*
+*-tfstate-*
+
+# Archivos de variables con informacion sensible
+terraform.tfvars
+*.tfvars
+
+# Archivos de planificacion y modulos
+*.tfplan
+.terraform/
+.terraformrc
+
+# Archivos de logs
+*.log
