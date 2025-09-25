@@ -47,13 +47,13 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan & Apply
+        env:
+          TF_VAR_pr_number: ${{ github.event.pull_request.number }}
+          TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+          TF_VAR_public_subnets: ${{ secrets.PUBLIC_SUBNETS }}
+          TF_VAR_private_subnets: ${{ secrets.PRIVATE_SUBNETS }}
+          TF_VAR_ecr_url: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}
         run: |
-          terraform plan -out=plan.out \
-            -var="pr_number=${{ github.event.pull_request.number }}" \
-            -var='vpc_id=${{ secrets.VPC_ID }}' \
-            -var="public_subnets=${{ secrets.PUBLIC_SUBNETS }}" \
-            -var="private_subnets=${{ secrets.PRIVATE_SUBNETS }}" \
-            -var="ecr_url=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}"
-          
+          terraform plan -out=plan.out
           terraform apply -auto-approve plan.out
         working-directory: ./terraform
